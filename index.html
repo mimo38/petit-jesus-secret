@@ -60,8 +60,8 @@ li.pl{flex-wrap:wrap}
     <h2>L’événement</h2>
     <div class="grid">
       <div><label for="ev">Nom</label><input id="ev" value="Petit-Jésus secret" maxlength="60"></div>
-      <div><label for="bud">Budget (facultatif)</label><input id="bud" placeholder="15 €" maxlength="20"></div>
-      <div><label for="dt">Date d’échange (facultatif)</label><input id="dt" placeholder="18 décembre" maxlength="30"></div>
+      <div><label for="bud">Budget (facultatif)</label><input id="bud" placeholder="15 € maximum, ou une phrase" maxlength="120"></div>
+      <div><label for="dt">Échange (facultatif)</label><input id="dt" placeholder="Le 18 décembre chez Marie" maxlength="120"></div>
       
     </div>
   </section>
@@ -321,7 +321,7 @@ function fallback(url, li) {
       $("rev-ev").textContent = d.e || "Petit-Jésus secret";
       $("rev-hi").textContent = "Bonjour " + d.p + ", votre tirage est prêt. Assurez-vous que personne ne regarde votre écran.";
       $("rev-g").textContent = d.g;
-      var meta = []; if (d.b) meta.push("Budget : " + d.b); if (d.d) meta.push("Échange le " + d.d);
+      var meta = []; if (d.b) meta.push("Budget : " + d.b); if (d.d) meta.push("Échange : " + d.d);
       $("rev-meta").style.whiteSpace = "pre-line"; $("rev-meta").textContent = meta.join("\n");
       if (d.w && d.w.indexOf("http") === 0) { var a = document.createElement("a"); a.href = d.w; a.textContent = "Liste de souhaits"; a.target = "_blank"; a.rel = "noopener"; $("rev-w").appendChild(a); }
       $("show").onclick = function () { $("show").hidden = true; $("result").hidden = false; };
