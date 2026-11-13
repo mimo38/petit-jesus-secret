@@ -57,17 +57,3 @@ var base = "https://mimo38.github.io/petit-jesus-secret/", ev = $("ev").value.tr
 
 Si vous copiez ce projet sous une autre adresse, remplacez cette valeur par la vôtre. Les liens de l'écran de résultat (« Effectuer mon propre tirage ») pointent aussi vers l'adresse d'origine : modifiez-les de la même manière.
 
-## Utilisation en local
-
-On peut ouvrir `index.html` directement dans un navigateur pour essayer l'interface. Les liens générés pointent toutefois vers l'adresse en ligne : ils ne fonctionnent que si la page y est publiée.
-
-## Structure
-
-```
-index.html   La page complète : HTML, CSS et JavaScript, sans dépendance
-README.md    Ce fichier
-```
-
-## Licence
-
-À définir par le propriétaire du dépôt. Sans licence, le code reste soumis au droit d'auteur par défaut ; vous pouvez en ajouter une depuis GitHub (« Add file », puis « Create new file », puis le nom `LICENSE`).
