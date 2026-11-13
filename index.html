@@ -134,7 +134,10 @@ li.pl{flex-wrap:wrap}
       <p id="rev-meta" style="margin:0 0 10px"></p>
       <p id="rev-w" style="margin:0 0 10px"></p>
       <p class="hint">Chut : c’est un secret.</p>
+      <p class="hint">Vous retrouverez ce résultat en ouvrant le lien reçu par mail.</p>
     </div>
+  <p class="hint" style="max-width:46ch;margin:26px auto 0">Aucun compte n’est nécessaire et aucune donnée n’est stockée en ligne : votre tirage n’existe que dans le lien reçu par mail, ce qui garantit la confidentialité. En contrepartie, ne perdez pas ce mail : sans lui, le tirage ne peut pas être retrouvé.</p>
+    <p style="margin:18px 0 0"><a class="btn" href="https://mimo38.github.io/petit-jesus-secret/">Effectuer mon propre tirage</a></p>
   </section>
 </div>
 </main>
@@ -300,7 +303,7 @@ function showLinks(list) {
     try { localStorage.removeItem("pns-tirage"); } catch (e) {}
     $("out").hidden = true; $("links").innerHTML = "";
   };
-  $("saved").textContent = "Ce tirage est gardé dans ce navigateur : en rouvrant la page ici, vous retrouverez les liens. Pour une sauvegarde ailleurs, utilisez « Copier tous les liens ».";
+  $("saved").textContent = "Ce tirage est gardé dans ce navigateur : en rouvrant la page ici, vous retrouverez les liens. Pour une sauvegarde ailleurs, utilisez « Copier tous les liens ». Attention, si vous ouvrez le lien de quelqu’un, vous divulgâchez le secret.";
   $("out").hidden = false;
 }
 function fallback(url, li) {
@@ -319,7 +322,7 @@ function fallback(url, li) {
       $("rev-hi").textContent = "Bonjour " + d.p + ", votre tirage est prêt. Assurez-vous que personne ne regarde votre écran.";
       $("rev-g").textContent = d.g;
       var meta = []; if (d.b) meta.push("Budget : " + d.b); if (d.d) meta.push("Échange le " + d.d);
-      $("rev-meta").textContent = meta.join(". ");
+      $("rev-meta").style.whiteSpace = "pre-line"; $("rev-meta").textContent = meta.join("\n");
       if (d.w && d.w.indexOf("http") === 0) { var a = document.createElement("a"); a.href = d.w; a.textContent = "Liste de souhaits"; a.target = "_blank"; a.rel = "noopener"; $("rev-w").appendChild(a); }
       $("show").onclick = function () { $("show").hidden = true; $("result").hidden = false; };
       return;
