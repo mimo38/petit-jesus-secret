@@ -44,7 +44,7 @@ li.pl{flex-wrap:wrap}
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .reveal{text-align:center;padding:34px 20px}
 .name{font-size:clamp(2.2rem,10vw,3.4rem);font-weight:800;letter-spacing:-.02em;color:var(--accent);margin:8px 0 14px;overflow-wrap:anywhere}
-.fig{display:block;height:84px;width:auto;color:var(--fig);margin:0 0 14px}
+.fig{display:block;height:84px;width:auto;color:var(--fig);margin:0 auto 14px}
 .reveal .fig{height:120px;margin:0 auto 16px}
 [hidden]{display:none!important}
 </style>
@@ -62,7 +62,7 @@ li.pl{flex-wrap:wrap}
       <div><label for="ev">Nom</label><input id="ev" value="Petit-Jésus secret" maxlength="60"></div>
       <div><label for="bud">Budget (facultatif)</label><input id="bud" placeholder="15 €" maxlength="20"></div>
       <div><label for="dt">Date d’échange (facultatif)</label><input id="dt" placeholder="18 décembre" maxlength="30"></div>
-      <div><label for="pu">Adresse en ligne de la page</label><input id="pu" type="url" placeholder="https://…github.io/…" maxlength="200" autocomplete="off"></div>
+      
     </div>
   </section>
 
@@ -79,13 +79,13 @@ li.pl{flex-wrap:wrap}
 
   <section id="s3">
     <h2>Exclusions (facultatif)</h2>
-    <p class="hint" style="margin-top:0">Choisissez qui ne peut pas offrir à qui. Laissez « dans les deux sens » coché pour un couple, ou décochez-le pour qu’une seule des deux personnes soit concernée.</p>
+    <p class="hint" style="margin-top:0">Choisissez qui ne peut pas offrir à qui. Cochez « dans les deux sens » pour un couple ; décoché, seule la première personne est concernée.</p>
     <div class="row" style="margin-top:10px">
       <div><label for="xa">Cette personne</label><select id="xa"></select></div>
       <div><label for="xb">ne peut pas offrir à</label><select id="xb"></select></div>
       <button id="addX" class="ghost">Ajouter</button>
     </div>
-    <label style="display:flex;gap:8px;align-items:center;margin:12px 0 0"><input id="xboth" type="checkbox" checked style="width:auto"> Dans les deux sens</label>
+    <label style="display:flex;gap:8px;align-items:center;margin:12px 0 0"><input id="xboth" type="checkbox" style="width:auto"> Dans les deux sens</label>
     <ul id="xlist"></ul>
   </section>
 
@@ -116,7 +116,7 @@ li.pl{flex-wrap:wrap}
     <h2>Tirage effectué</h2>
     <p class="hint" style="margin-top:0">Envoyez à chaque personne son lien, par message privé. Le tirage n’est affiché nulle part ici.</p>
     <ul id="links"></ul>
-    <div class="tools"><button id="dlAll">Télécharger tous les mails</button><button id="copyAll" class="ghost">Copier tous les liens</button><button id="clear" class="ghost">Effacer ce tirage</button></div>
+    <div class="tools"><button id="copyAll" class="ghost">Copier tous les liens</button><button id="clear" class="ghost">Effacer ce tirage</button></div>
     <p class="hint" id="saved"></p>
     <p class="hint">Pour que les participants puissent ouvrir leur lien, partage d’abord cette page depuis le bouton de partage de Claude.</p>
   </section>
@@ -208,7 +208,7 @@ $("prepPad").onclick = function () {
   showErr("");
   copyText(padText(), $("prepPad"), "Préparer le fichier liste de souhaits", $("s4"));
 };
-["wl", "wp", "mt", "pu"].forEach(function (id) { $(id).oninput = function () { try { localStorage.setItem("pns-" + id, $(id).value); } catch (e) {} }; });
+["wl", "wp", "mt"].forEach(function (id) { $(id).oninput = function () { try { localStorage.setItem("pns-" + id, $(id).value); } catch (e) {} }; });
 $("addX").onclick = function () {
   var a = $("xa").value, b = $("xb").value;
   if (!a || !b || a === b) { showErr("Choisissez deux personnes différentes."); return; }
@@ -239,8 +239,8 @@ $("draw").onclick = function () {
   var g = doDraw();
   if (!g) { showErr("Aucun tirage possible avec ces exclusions. Retirez-en une."); return; }
   showErr("");
-  var base = ($("pu").value.trim() || location.href).split("#")[0], ev = $("ev").value.trim();
-  if (base.indexOf("http") !== 0) { showErr("Les liens ne fonctionneraient pas pour les autres : ouvrez la page depuis son adresse en ligne, ou saisissez cette adresse dans « Adresse en ligne de la page »."); return; }
+  var base = "https://mimo38.github.io/petit-jesus-secret/", ev = $("ev").value.trim();
+  
   var list = people.map(function (p, i) {
     return { p: p, m: emails[p] || "", ev: ev, url: base + "#" + enc({ p: p, g: g[i], e: ev, b: $("bud").value.trim(), d: $("dt").value.trim(), w: $("wl").value.trim() }) };
   });
@@ -255,23 +255,20 @@ function copyText(t, b, back, host) {
 }
 function mailHref(it) {
   var wl = $("wl").value.trim();
-  var subj = (it.ev || "Petit-Jésus secret") + " : votre lien personnel";
-  var body = "Bonjour " + it.p + ",\n\nVoici votre lien personnel pour le tirage : " + it.url + "\n\nGardez-le pour vous : il révèle à qui vous offrez un cadeau.";
-  if (wl) body += "\n\nListe de souhaits, où chacun note ses idées : " + wl;
+  var subj = (it.ev || "Petit-Jésus secret") + " : votre tirage";
+  var body = msgFor(it);
+  
   return "mailto:" + encodeURIComponent(it.m).replace(/%40/g, "@") + "?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(body);
 }
 function padText() {
-  var ev = $("ev").value.trim() || "Petit-Jésus secret", bud = $("bud").value.trim(), dt = $("dt").value.trim();
-  var t = "Liste de souhaits : " + ev + "\n\nChacun note ses idées sous son prénom : goûts, tailles, couleurs, envies. Ces notes ne sont pas secrètes, seule la personne tirée l’est.\n";
-  if (bud) t += "Budget : " + bud + "\n";
-  if (dt) t += "Échange le " + dt + "\n";
-  people.forEach(function (p) { t += "\n" + p + "\n- \n- \n"; });
+  var ev = $("ev").value.trim() || "Petit-Jésus secret";
+  var t = "Liste de souhaits : " + ev + "\nMettez-y des idées, des liens, etc…\n";
+  
+  
+  people.forEach(function (p) { t += p + "\n- \n- \n"; });
   return t;
 }
 var DEFAULT_MSG = "Bonjour {prenom},\n\nVous participez au {evenement}. Pour découvrir à qui vous offrez un cadeau, ouvrez votre lien personnel :\n\n{lien}\n\nAucun compte n’est nécessaire.\n\nListe de souhaits, où chacun note ses idées : {liste}\nMot de passe de la liste : {mdp}\n\nGardez le secret !";
-function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-function b64(s) { return btoa(unescape(encodeURIComponent(s))).replace(/(.{76})/g, "$1\r\n"); }
-function slug(s) { return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]+/g, "-"); }
 function msgFor(it) {
   var wl = $("wl").value.trim(), wp = $("wp").value.trim();
   var t = ($("mt").value || DEFAULT_MSG).split("\n").filter(function (l) {
@@ -279,33 +276,6 @@ function msgFor(it) {
   }).join("\n");
   if (t.indexOf("{lien}") < 0) t += "\n\nVotre lien personnel : {lien}";
   return t.split("{prenom}").join(it.p).split("{evenement}").join(it.ev || "Petit-Jésus secret").split("{lien}").join(it.url).split("{liste}").join(wl).split("{mdp}").join(wp);
-}
-function revealPage(it) {
-  var css = ':root{--bg:#f2f5f2;--ink:#14281f;--mut:#5a6b62;--ac:#b3263e;--pine:#14402e;--fig:#4fae7f;color-scheme:light}@media(prefers-color-scheme:dark){:root{--bg:#0f1a15;--ink:#eaf1ec;--mut:#9bb0a4;--ac:#e0516a;--pine:#7fc4a0;--fig:#8fd9ae;color-scheme:dark}}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,sans-serif}main{max-width:560px;margin:0 auto;padding:40px 20px;text-align:center}.fig{display:block;margin:0 auto 14px;height:120px;width:auto;color:var(--fig)}h1{color:var(--pine);font-size:2.4rem;line-height:1;margin:10px 0}button{font:600 1rem system-ui,sans-serif;border:0;border-radius:9px;padding:16px;width:100%;background:var(--ac);color:#fff;cursor:pointer}.name{font-size:2.8rem;font-weight:800;color:var(--ac);margin:8px 0;overflow-wrap:anywhere}.m{color:var(--mut)}a{color:var(--pine)}[hidden]{display:none!important}';
-  var fig = document.querySelector("#receiver .fig").outerHTML;
-  var js = dec.toString() + 'var H="' + it.url.split("#")[1] + '",W=' + JSON.stringify($("wl").value.trim()).replace(/</g, "\\u003c") + ';var $=function(i){return document.getElementById(i)},d=dec(H);$("e").textContent=d.e||"Petit-Jésus secret";$("hi").textContent="Bonjour "+d.p+", votre tirage est prêt. Assurez-vous que personne ne regarde votre écran.";$("g").textContent=d.g;var m=[];if(d.b)m.push("Budget : "+d.b);if(d.d)m.push("Échange le "+d.d);$("m").textContent=m.join(". ");var w=W||d.w;if(w&&w.indexOf("http")===0){var a=document.createElement("a");a.href=w;a.textContent="Liste de souhaits";$("w").appendChild(a)}$("b").onclick=function(){$("b").hidden=true;$("r").hidden=false};';
-  return '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Petit-Jésus secret</title><style>' + css + '</style></head><body><main>' + fig + '<h1 id="e"></h1><p id="hi"></p><button id="b">Découvrir la personne à gâter</button><div id="r" hidden><p class="m">Vous offrez un cadeau à</p><div class="name" id="g"></div><p id="m"></p><p id="w"></p><p class="m">Chut : c’est un secret.</p></div></main><script>' + js + '<\/script></body></html>';
-}
-function emlFor(it) {
-  var b1 = "=_pns_" + Math.random().toString(36).slice(2), b2 = "=_alt_" + Math.random().toString(36).slice(2);
-  var t = msgFor(it), subj = (it.ev || "Petit-Jésus secret") + " : votre tirage";
-  var html = '<div style="font:16px/1.6 -apple-system,Segoe UI,sans-serif;color:#14281f">' + esc(t.split(it.url).join("\u0001")).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>').replace(/\n/g, "<br>").split("\u0001").join('<a href="' + it.url + '" style="display:inline-block;background:#b3263e;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600">Découvrir mon tirage</a>') + "</div>";
-  var h = ["X-Unsent: 1"];
-  if (it.m) h.push("To: " + it.m);
-  h = h.concat(["Subject: =?UTF-8?B?" + btoa(unescape(encodeURIComponent(subj))) + "?=", "MIME-Version: 1.0", 'Content-Type: multipart/mixed; boundary="' + b1 + '"', "",
-    "--" + b1, 'Content-Type: multipart/alternative; boundary="' + b2 + '"', "",
-    "--" + b2, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: base64", "", b64(t),
-    "--" + b2, "Content-Type: text/html; charset=UTF-8", "Content-Transfer-Encoding: base64", "", b64(html),
-    "--" + b2 + "--", "",
-    
-    "--" + b1 + "--", ""]);
-  return h.join("\r\n");
-}
-function dl(it) {
-  var u = URL.createObjectURL(new Blob([emlFor(it)], { type: "message/rfc822" }));
-  var a = document.createElement("a"); a.href = u; a.download = "Petit-Jesus-secret-" + slug(it.p) + ".eml";
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(function () { URL.revokeObjectURL(u); }, 3000);
 }
 function showLinks(list) {
   var ul = $("links"); ul.innerHTML = "";
@@ -315,14 +285,14 @@ function showLinks(list) {
     var acts = document.createElement("div"); acts.className = "acts";
     var b = document.createElement("button"); b.textContent = "Copier le lien";
     b.onclick = function () { copyText(it.url, b, "Copier le lien", li); };
-    var a = document.createElement("button"); a.className = "ghost"; a.textContent = "Télécharger le mail (.eml)"; a.onclick = function () { dl(it); };
+    var a = document.createElement("a"); a.className = "btn"; a.textContent = "Envoyer un mail"; a.href = mailHref(it); a.onclick = function () { a.href = mailHref(it); };
     
     
     
     acts.appendChild(a);
     li.appendChild(s); li.appendChild(acts); ul.appendChild(li);
   });
-  $("dlAll").onclick = function () { list.forEach(function (it, i) { setTimeout(function () { dl(it); }, i * 400); }); };
+  
   $("copyAll").onclick = function () {
     copyText(list.map(function (it) { return it.p + " : " + it.url; }).join("\n"), $("copyAll"), "Copier tous les liens", $("out"));
   };
@@ -356,7 +326,7 @@ function fallback(url, li) {
     } catch (e) {}
   }
   renderAll();
-  ["wl", "wp", "mt", "pu"].forEach(function (id) { try { var v = localStorage.getItem("pns-" + id); if (v) $(id).value = v; } catch (e) {} });
+  ["wl", "wp", "mt"].forEach(function (id) { try { var v = localStorage.getItem("pns-" + id); if (v) $(id).value = v; } catch (e) {} });
   if (!$("mt").value) $("mt").value = DEFAULT_MSG;
   try { var sv = localStorage.getItem("pns-tirage"); if (sv) showLinks(JSON.parse(sv)); } catch (e) {}
 })();
